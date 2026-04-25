@@ -6,8 +6,8 @@ import { swapCmd } from '../src/commands/swap.js'
 import { listCmd } from '../src/commands/list.js'
 
 const main = command(
-  'rabbithole',
-  header('rabbithole — dev context stashing'),
+  'rabbit-warren',
+  header('rabbit-warren — dev context stashing'),
   summary('Stash and restore full dev context: git changes, node_modules edits, and symlinks'),
   stashCmd,
   popCmd,

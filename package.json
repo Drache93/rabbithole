@@ -1,9 +1,9 @@
 {
-  "name": "rabbithole",
+  "name": "rabbit-warren",
   "version": "0.1.0",
   "type": "module",
   "bin": {
-    "rabbithole": "./bin/rabbithole.js"
+    "wrn": "./bin/rabbit-warren.js"
   },
   "dependencies": {
     "paparam": "^1.10.0"

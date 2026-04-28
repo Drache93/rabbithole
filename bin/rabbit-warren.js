@@ -6,8 +6,7 @@ import { swapCmd } from '../src/commands/swap.js'
 import { listCmd } from '../src/commands/list.js'
 import { enterCmd } from '../src/commands/enter.js'
 import { leaveCmd } from '../src/commands/leave.js'
-import { checkoutCmd } from '../src/commands/checkout.js'
-import { linkCmd } from '../src/commands/link.js'
+import { trackCmd } from '../src/commands/track.js'
 
 const main = command(
   'rabbit-warren',
@@ -19,8 +18,7 @@ const main = command(
   listCmd,
   enterCmd,
   leaveCmd,
-  checkoutCmd,
-  linkCmd,
+  trackCmd,
   () => console.log(main.help())
 )
 

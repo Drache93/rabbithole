@@ -16,6 +16,9 @@ export function activeSession() {
 
 export function setActiveSession(name) {
   fs.mkdirSync(SESSIONS_DIR, { recursive: true })
+  const session = readSession(name)
+  session.timestamp = Date.now()
+  writeSession(session)
   fs.writeFileSync(CURRENT_FILE, name)
 }
 
@@ -37,7 +40,25 @@ export function writeSession(session) {
 
 export function registerRepo(sessionName, repoSlug, repoPath) {
   let session = readSession(sessionName)
-  if (!session) session = { name: sessionName, createdAt: Date.now(), repos: {} }
+  if (!session) session = { name: sessionName, timestamp: Date.now(), repos: {} }
   session.repos[repoSlug] = { repoSlug, repoPath }
   writeSession(session)
+}
+
+export function updateSession(sessionName) {
+  if (!session) throw new Error('No session found')
+}
+
+export function listSessions() {
+  return fs
+    .readdirSync(SESSIONS_DIR, { withFileTypes: true })
+    .filter((e) => e.isDirectory())
+    .map((e) => {
+      try {
+        return readSession(e.name)
+      } catch {
+        return { name: e.name, timestamp: 0, repos: {} }
+      }
+    })
+    .sort((a, b) => b.timestamp - a.timestamp)
 }

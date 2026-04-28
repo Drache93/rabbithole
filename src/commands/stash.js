@@ -1,6 +1,8 @@
 import { command, arg, summary } from 'paparam'
 import { capture } from '../lib/snapshot.js'
-import { bold, cyan, yellow, gray, green } from '../lib/color.js'
+import { bold, cyan, yellow, gray, green, red } from '../lib/color.js'
+import { activeSession } from '../lib/sessions.js'
+import { doLeave } from './leave.js'
 
 export const stashCmd = command(
   'stash',
@@ -8,6 +10,23 @@ export const stashCmd = command(
   arg('[name]', 'Name for this stash (default: branch-timestamp)'),
   async (cmd) => {
     try {
+      const session = activeSession()
+
+      if (session) {
+        console.log(`\n  ${green('↓')} ${bold('Leaving session')} ${cyan(session)}\n`)
+        const results = await doLeave(session)
+        for (const { repoSlug, meta, error } of results) {
+          if (error) {
+            console.log(`    ${cyan(repoSlug)}  ${red('!')} ${gray(error.message)}`)
+          } else {
+            console.log(`    ${cyan(repoSlug)}  ${yellow(meta.branch)}`)
+          }
+        }
+        if (results.length > 0) console.log()
+        console.log(`  ${gray('Run')} wrn enter ${cyan(session)} ${gray('to resume.')}\n`)
+        return
+      }
+
       const { name, meta } = await capture(cmd.args.name)
       console.log(`\n  ${green('↓')} ${bold('Stashed')} ${cyan(name)}`)
       console.log(`    ${gray('branch')}    ${yellow(meta.branch)}`)

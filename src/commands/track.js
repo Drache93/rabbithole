@@ -1,4 +1,4 @@
-import { command, summary } from 'paparam'
+import { command, arg, summary } from 'paparam'
 import { capture } from '../lib/snapshot.js'
 import { makeRepoSlug, deleteStash } from '../lib/storage.js'
 import { getRepoRoot } from '../lib/git.js'
@@ -8,6 +8,7 @@ import { activeSession, registerRepo, getSessionStashDir } from '../lib/sessions
 export const trackCmd = command(
   'track',
   summary('Track the curent repo in the active session'),
+  arg('[path]'),
   async (cmd) => {
     try {
       const session = activeSession()
@@ -17,7 +18,7 @@ export const trackCmd = command(
         return
       }
 
-      const repoRoot = getRepoRoot()
+      const repoRoot = getRepoRoot(cmd.args.path)
       const slug = makeRepoSlug(repoRoot)
       const stashDir = getSessionStashDir(session, slug)
 

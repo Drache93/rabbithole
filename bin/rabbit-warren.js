@@ -5,6 +5,8 @@ import { popCmd } from '../src/commands/pop.js'
 import { swapCmd } from '../src/commands/swap.js'
 import { showCmd } from '../src/commands/show.js'
 import { listCmd } from '../src/commands/list.js'
+import { exportCmd } from '../src/commands/export.js'
+import { importCmd } from '../src/commands/import.js'
 
 const main = command(
   'rabbit-warren',
@@ -15,6 +17,8 @@ const main = command(
   swapCmd,
   showCmd,
   listCmd,
+  exportCmd,
+  importCmd,
   () => console.log(main.help())
 )
 

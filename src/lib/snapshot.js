@@ -1,5 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import os from 'node:os'
+import { execSync } from 'node:child_process'
 import {
   getRepoRoot,
   currentBranch,
@@ -21,6 +23,7 @@ import {
   walkFiles
 } from './modules.js'
 import { makeRepoSlug, getStashDir, readMeta, mostRecentStash, deleteStash } from './storage.js'
+import { captureVersions, installVersions } from './lockfile.js'
 
 function findLockfile(repoRoot) {
   for (const name of ['package-lock.json', 'yarn.lock', 'pnpm-lock.yaml']) {
@@ -81,7 +84,8 @@ export async function capture(stashName) {
       files: countChangedFiles(patch),
       untracked: untracked.length,
       links: links.length,
-      modified: modified.length
+      modified: modified.length,
+      modules: versions.length
     }
   }
 
@@ -91,6 +95,7 @@ export async function capture(stashName) {
   fs.writeFileSync(path.join(dir, 'meta.json'), JSON.stringify(meta, null, 2))
   fs.writeFileSync(path.join(dir, 'git.patch'), patch)
   fs.writeFileSync(path.join(dir, 'node_modules', 'links.json'), JSON.stringify(links, null, 2))
+  fs.writeFileSync(path.join(dir, 'modules.json'), JSON.stringify(versions, null, 2))
 
   if (lockfilePath) {
     fs.copyFileSync(lockfilePath, path.join(dir, path.basename(lockfilePath)))
@@ -217,4 +222,60 @@ export async function swap(targetName) {
   fs.writeFileSync(path.join(finalDir, 'meta.json'), JSON.stringify(meta, null, 2))
 
   return { swapped: targetName, saved: targetName }
+}
+
+export function exportStash(stashName, outputPath) {
+  const repoRoot = getRepoRoot()
+  const slug = makeRepoSlug(repoRoot)
+
+  let dir, meta
+  if (stashName) {
+    dir = getStashDir(slug, stashName)
+    if (!fs.existsSync(dir)) throw new Error(`Stash "${stashName}" not found`)
+    meta = readMeta(dir)
+  } else {
+    meta = mostRecentStash(slug)
+    if (!meta) throw new Error('No stashes found for this repo')
+    dir = getStashDir(slug, meta.name)
+  }
+
+  const out = outputPath || path.join(process.cwd(), `${meta.name}.wrn.tar.gz`)
+  execSync(`tar -czf "${out}" -C "${path.dirname(dir)}" "${path.basename(dir)}"`)
+  return { name: meta.name, outputPath: out }
+}
+
+export async function importAndRestore(tarPath) {
+  const repoRoot = getRepoRoot()
+  const slug = makeRepoSlug(repoRoot)
+
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'wrn-import-'))
+  let stashName
+  try {
+    execSync(`tar -xzf "${tarPath}" -C "${tempDir}"`)
+
+    const [extractedName] = fs.readdirSync(tempDir)
+    const extractedDir = path.join(tempDir, extractedName)
+    const meta = readMeta(extractedDir)
+    stashName = meta.name
+
+    const destDir = getStashDir(slug, stashName)
+    if (fs.existsSync(destDir)) throw new Error(`Stash "${stashName}" already exists locally`)
+
+    meta.repoPath = repoRoot
+    meta.repoSlug = slug
+    fs.writeFileSync(path.join(extractedDir, 'meta.json'), JSON.stringify(meta, null, 2))
+    fs.mkdirSync(path.dirname(destDir), { recursive: true })
+    fs.renameSync(extractedDir, destDir)
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true })
+  }
+
+  const destDir = getStashDir(slug, stashName)
+  const versionsPath = path.join(destDir, 'modules.json')
+  if (fs.existsSync(versionsPath)) {
+    const versions = JSON.parse(fs.readFileSync(versionsPath, 'utf8'))
+    installVersions(versions, repoRoot)
+  }
+
+  return restore(stashName)
 }

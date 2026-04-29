@@ -20,6 +20,7 @@ import {
   walkFiles
 } from './modules.js'
 import { makeRepoSlug, getStashDir, readMeta, mostRecentStash, deleteStash } from './storage.js'
+import { captureVersions, installVersions } from './lockfile.js'
 
 function findLockfile(repoRoot) {
   for (const name of ['package-lock.json', 'yarn.lock', 'pnpm-lock.yaml']) {
@@ -69,6 +70,7 @@ export async function capture(stashName) {
   const untracked = captureUntracked(repoRoot)
   const links = captureLinks(nodeModulesPath)
   const modified = lockfilePath ? captureModified(nodeModulesPath, lockfilePath) : []
+  const versions = captureVersions(nodeModulesPath)
 
   const meta = {
     name,
@@ -80,7 +82,8 @@ export async function capture(stashName) {
       files: countChangedFiles(patch),
       untracked: untracked.length,
       links: links.length,
-      modified: modified.length
+      modified: modified.length,
+      modules: versions.length
     }
   }
 
@@ -90,6 +93,7 @@ export async function capture(stashName) {
   fs.writeFileSync(path.join(dir, 'meta.json'), JSON.stringify(meta, null, 2))
   fs.writeFileSync(path.join(dir, 'git.patch'), patch)
   fs.writeFileSync(path.join(dir, 'node_modules', 'links.json'), JSON.stringify(links, null, 2))
+  fs.writeFileSync(path.join(dir, 'modules.json'), JSON.stringify(versions, null, 2))
 
   if (lockfilePath) {
     fs.copyFileSync(lockfilePath, path.join(dir, path.basename(lockfilePath)))

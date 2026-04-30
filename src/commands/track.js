@@ -40,7 +40,7 @@ export const trackCmd = command(
       }
 
       deleteStash(stashDir)
-      await capture(slug, process.cwd(), stashDir, session, { clean: false })
+      capture(slug, process.cwd(), stashDir, session, { clean: false })
       registerRepo(session, slug, repoRoot)
 
       console.log(

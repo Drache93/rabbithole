@@ -83,7 +83,6 @@ export function captureModified(nodeModulesPath, lockfilePath) {
       try {
         const stat = fs.statSync(fullPath)
         if (stat.mtimeMs > lastInstall + 1000) {
-          console.log(pkgDir)
           modified.push({ package: pkgDir, file: relPath })
         }
       } catch {}

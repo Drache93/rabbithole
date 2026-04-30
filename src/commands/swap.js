@@ -1,12 +1,14 @@
 import { command, arg, summary } from 'paparam'
 import { swap } from '../lib/snapshot.js'
 import { bold, cyan, gray, green } from '../lib/color.js'
+import { initStorageDir } from '../lib/config.js'
 
 export const swapCmd = command(
   'swap',
   summary('Swap current dev context with a named stash (bidirectional)'),
   arg('<name>', 'Name of the stash to swap with'),
   async (cmd) => {
+    initStorageDir(cmd)
     try {
       const { swapped } = await swap(cmd.args.name)
       console.log(`\n  ${green('⇄')} ${bold('Swapped')} with ${cyan(swapped)}`)

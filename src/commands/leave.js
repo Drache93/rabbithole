@@ -8,6 +8,7 @@ import {
   readSession,
   getSessionStashDir
 } from '../lib/sessions.js'
+import { initStorageDir } from '../lib/config.js'
 
 export async function doLeave(name) {
   const session = readSession(name)
@@ -32,7 +33,8 @@ export async function doLeave(name) {
 export const leaveCmd = command(
   'leave',
   summary('Save all session repos and exit the current session'),
-  async () => {
+  async (cmd) => {
+    initStorageDir(cmd)
     try {
       const name = activeSession()
       if (!name) {
@@ -43,6 +45,10 @@ export const leaveCmd = command(
       console.log(`\n  ${green('↓')} ${bold('Leaving session')} ${cyan(name)}\n`)
 
       const results = await doLeave(name)
+
+      if (results.length === 0) {
+        console.log(`  ${gray('No repos tracked in this session — nothing to snapshot.')}\n`)
+      }
 
       for (const { repoSlug, meta, error } of results) {
         if (error) {

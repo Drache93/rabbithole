@@ -9,12 +9,16 @@ export function makeRepoSlug(repoRoot) {
   return `${basename}-${hash}`
 }
 
+function getBase() {
+  return process.env.WRN_HOME || path.join(os.homedir(), '.rabbit-warren')
+}
+
 export function getStashDir(repoSlug, stashName) {
-  return path.join(os.homedir(), '.rabbit-warren', repoSlug, stashName)
+  return path.join(getBase(), repoSlug, stashName)
 }
 
 export function getRepoDir(repoSlug) {
-  return path.join(os.homedir(), '.rabbit-warren', repoSlug)
+  return path.join(getBase(), repoSlug)
 }
 
 export function readMeta(stashDir) {

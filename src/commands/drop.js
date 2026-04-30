@@ -7,13 +7,15 @@ import {
   mostRecentStash,
   deleteStash
 } from '../lib/storage.js'
-import { bold, green, gray, red, dim } from '../lib/color.js'
+import { bold, gray, red, dim } from '../lib/color.js'
+import { initStorageDir } from '../lib/config.js'
 
 export const dropCmd = command(
   'drop',
   summary('Drop a stash (most recent if no name given)'),
   arg('[name]', 'Name of the stash to restore'),
-  async (cmd) => {
+  (cmd) => {
+    initStorageDir(cmd)
     try {
       const repoRoot = getRepoRoot()
       const slug = makeRepoSlug(repoRoot)

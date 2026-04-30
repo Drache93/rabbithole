@@ -55,7 +55,13 @@ function restoreUntrackedFiles(srcDir, repoRoot) {
   }
 }
 
-export async function capture(stashName, cwd = process.cwd(), stashDir = null, session = null) {
+export function capture(
+  stashName,
+  cwd = process.cwd(),
+  stashDir = null,
+  session = null,
+  { clean = true } = {}
+) {
   const repoRoot = getRepoRoot(cwd)
   const branch = currentBranch(repoRoot)
   const slug = makeRepoSlug(repoRoot)
@@ -111,12 +117,12 @@ export async function capture(stashName, cwd = process.cwd(), stashDir = null, s
     copyModifiedFiles(modified, nodeModulesPath, path.join(dir, 'node_modules', 'modified'))
   }
 
-  cleanWorkingDirectory(repoRoot, links, modified)
+  if (clean) cleanWorkingDirectory(repoRoot, links, modified)
 
   return { name, meta, dir, slug }
 }
 
-export async function restore(stashName, cwd = process.cwd(), stashDir = null) {
+export function restore(stashName, cwd = process.cwd(), stashDir = null) {
   const repoRoot = getRepoRoot(cwd)
   const slug = makeRepoSlug(repoRoot)
   const nodeModulesPath = path.join(repoRoot, 'node_modules')
@@ -250,7 +256,7 @@ export function exportStash(stashName, outputPath) {
   return { name: meta.name, outputPath: out }
 }
 
-export async function importAndRestore(tarPath) {
+export function importAndRestore(tarPath) {
   const repoRoot = getRepoRoot()
   const slug = makeRepoSlug(repoRoot)
 

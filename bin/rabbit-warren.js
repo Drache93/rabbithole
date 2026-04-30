@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { command, header, summary } from 'paparam'
+import { command, flag, header, summary } from 'paparam'
 import { stashCmd } from '../src/commands/stash.js'
 import { popCmd } from '../src/commands/pop.js'
 import { dropCmd } from '../src/commands/drop.js'
@@ -16,6 +16,7 @@ const main = command(
   'rabbit-warren',
   header('rabbit-warren — dev context stashing'),
   summary('Stash and restore full dev context: git changes, node_modules edits, and symlinks'),
+  flag('--storage-dir|-d <dir>', 'Override storage directory (default: ~/.rabbit-warren)'),
   stashCmd,
   popCmd,
   dropCmd,

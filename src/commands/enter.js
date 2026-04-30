@@ -7,14 +7,21 @@ import {
   readSession,
   getSessionStashDir
 } from '../lib/sessions.js'
+import { initStorageDir } from '../lib/config.js'
 
 export const enterCmd = command(
   'enter',
   summary('Enter a named session, restoring all repos if it exists'),
   arg('<name>', 'Session name'),
   async (cmd) => {
+    initStorageDir(cmd)
     try {
       const name = cmd.args.name
+
+      if (!name || !name.trim()) throw new Error('Session name cannot be empty.')
+      if (/[/\\]/.test(name)) throw new Error('Session name cannot contain path separators.')
+      if (/[<>:"|?*\x00-\x1f]/.test(name))
+        throw new Error('Session name contains invalid characters.')
 
       const current = activeSession()
       if (current && current !== name) {

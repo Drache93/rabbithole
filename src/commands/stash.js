@@ -3,12 +3,14 @@ import { capture } from '../lib/snapshot.js'
 import { bold, cyan, yellow, gray, green, red } from '../lib/color.js'
 import { activeSession } from '../lib/sessions.js'
 import { doLeave } from './leave.js'
+import { initStorageDir } from '../lib/config.js'
 
 export const stashCmd = command(
   'stash',
   summary('Save current dev context and clean the working directory'),
   arg('[name]', 'Name for this stash (default: branch-timestamp)'),
   async (cmd) => {
+    initStorageDir(cmd)
     try {
       const session = activeSession()
 

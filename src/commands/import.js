@@ -1,12 +1,14 @@
 import { command, arg, summary } from 'paparam'
 import { importAndRestore } from '../lib/snapshot.js'
 import { bold, cyan, yellow, gray, green } from '../lib/color.js'
+import { initStorageDir } from '../lib/config.js'
 
 export const importCmd = command(
   'import',
   summary('Import and apply a stash from a .wrn.tar.gz file'),
   arg('<file>', 'Path to the .wrn.tar.gz file'),
   async (cmd) => {
+    initStorageDir(cmd)
     try {
       const { name, meta, switched } = await importAndRestore(cmd.args.file)
       console.log(`\n  ${green('↙')} ${bold('Imported')} ${cyan(name)}`)

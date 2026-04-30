@@ -2,38 +2,42 @@ import fs from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
 
-const SESSIONS_DIR = path.join(os.homedir(), '.rabbit-warren', 'sessions')
-const CURRENT_FILE = path.join(SESSIONS_DIR, 'current')
+function getSessionsDir() {
+  return path.join(process.env.WRN_HOME || path.join(os.homedir(), '.rabbit-warren'), 'sessions')
+}
 
 export function getSessionStashDir(sessionName, repoSlug) {
-  return path.join(SESSIONS_DIR, sessionName, repoSlug)
+  return path.join(getSessionsDir(), sessionName, repoSlug)
 }
 
 export function activeSession() {
-  if (!fs.existsSync(CURRENT_FILE)) return null
-  return fs.readFileSync(CURRENT_FILE, 'utf8').trim() || null
+  const currentFile = path.join(getSessionsDir(), 'current')
+  if (!fs.existsSync(currentFile)) return null
+  return fs.readFileSync(currentFile, 'utf8').trim() || null
 }
 
 export function setActiveSession(name) {
-  fs.mkdirSync(SESSIONS_DIR, { recursive: true })
+  const sessionsDir = getSessionsDir()
+  fs.mkdirSync(sessionsDir, { recursive: true })
   const session = readSession(name) || { name, timestamp: null, repos: {} }
   session.timestamp = Date.now()
   writeSession(session)
-  fs.writeFileSync(CURRENT_FILE, name)
+  fs.writeFileSync(path.join(sessionsDir, 'current'), name)
 }
 
 export function clearActiveSession() {
-  if (fs.existsSync(CURRENT_FILE)) fs.unlinkSync(CURRENT_FILE)
+  const currentFile = path.join(getSessionsDir(), 'current')
+  if (fs.existsSync(currentFile)) fs.unlinkSync(currentFile)
 }
 
 export function readSession(name) {
-  const file = path.join(SESSIONS_DIR, name, 'session.json')
+  const file = path.join(getSessionsDir(), name, 'session.json')
   if (!fs.existsSync(file)) return null
   return JSON.parse(fs.readFileSync(file, 'utf8'))
 }
 
 export function writeSession(session) {
-  const dir = path.join(SESSIONS_DIR, session.name)
+  const dir = path.join(getSessionsDir(), session.name)
   fs.mkdirSync(dir, { recursive: true })
   fs.writeFileSync(path.join(dir, 'session.json'), JSON.stringify(session, null, 2))
 }
@@ -45,13 +49,11 @@ export function registerRepo(sessionName, repoSlug, repoPath) {
   writeSession(session)
 }
 
-export function updateSession(sessionName) {
-  if (!session) throw new Error('No session found')
-}
-
 export function listSessions() {
+  const sessionsDir = getSessionsDir()
+  if (!fs.existsSync(sessionsDir)) return []
   return fs
-    .readdirSync(SESSIONS_DIR, { withFileTypes: true })
+    .readdirSync(sessionsDir, { withFileTypes: true })
     .filter((e) => e.isDirectory())
     .map((e) => {
       try {

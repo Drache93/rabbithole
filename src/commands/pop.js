@@ -1,12 +1,14 @@
 import { command, arg, summary } from 'paparam'
 import { restore } from '../lib/snapshot.js'
 import { bold, cyan, yellow, gray, green } from '../lib/color.js'
+import { initStorageDir } from '../lib/config.js'
 
 export const popCmd = command(
   'pop',
   summary('Restore a stash (most recent if no name given)'),
   arg('[name]', 'Name of the stash to restore'),
   async (cmd) => {
+    initStorageDir(cmd)
     try {
       const { name, meta, switched } = await restore(cmd.args.name)
       console.log(`\n  ${green('↑')} ${bold('Restored')} ${cyan(name)}`)

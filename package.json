@@ -6,6 +6,7 @@
     "wrn": "./bin/rabbit-warren.js"
   },
   "scripts": {
+    "test": "brittle test/all.js",
     "format": "prettier . --write",
     "lint": "lunte && prettier . --check"
   },
@@ -13,6 +14,7 @@
     "paparam": "^1.10.0"
   },
   "devDependencies": {
+    "brittle": "^3.19.1",
     "lunte": "^1.7.0",
     "prettier": "^3.8.3",
     "prettier-config-holepunch": "^2.0.0"

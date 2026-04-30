@@ -1,13 +1,15 @@
 import { command, arg, summary } from 'paparam'
 import { exportStash } from '../lib/snapshot.js'
 import { bold, cyan, gray, green } from '../lib/color.js'
+import { initStorageDir } from '../lib/config.js'
 
 export const exportCmd = command(
   'export',
   summary('Export a stash to a .wrn.tar.gz file for sharing'),
   arg('[name]', 'Stash to export (default: most recent)'),
   arg('[output]', 'Output path (default: ./<name>.wrn.tar.gz)'),
-  async (cmd) => {
+  (cmd) => {
+    initStorageDir(cmd)
     try {
       const { name, outputPath } = exportStash(cmd.args.name, cmd.args.output)
       console.log(`\n  ${green('↗')} ${bold('Exported')} ${cyan(name)}`)

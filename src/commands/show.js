@@ -3,12 +3,14 @@ import { getRepoRoot } from '../lib/git.js'
 import { getStashDir, readMeta, makeRepoSlug } from '../lib/storage.js'
 import { inspect } from '../lib/snapshot.js'
 import { bold, cyan, green, yellow, red, gray, dim } from '../lib/color.js'
+import { initStorageDir } from '../lib/config.js'
 
 export const showCmd = command(
   'show',
   arg('[name]', 'name of the stash'),
   summary('Inspect a warren'),
-  async (cmd) => {
+  (cmd) => {
+    initStorageDir(cmd)
     try {
       const repoRoot = getRepoRoot()
       const slug = makeRepoSlug(repoRoot)

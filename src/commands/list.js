@@ -3,8 +3,10 @@ import { getRepoRoot } from '../lib/git.js'
 import { makeRepoSlug, listStashes } from '../lib/storage.js'
 import { listSessions } from '../lib/sessions.js'
 import { green, bold, cyan, yellow, gray, dim } from '../lib/color.js'
+import { initStorageDir } from '../lib/config.js'
 
-export const listCmd = command('list', summary('List all stashes for this repo'), async () => {
+export const listCmd = command('list', summary('List all stashes for this repo'), (cmd) => {
+  initStorageDir(cmd)
   try {
     const repoRoot = getRepoRoot()
     const slug = makeRepoSlug(repoRoot)

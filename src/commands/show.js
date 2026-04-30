@@ -1,6 +1,6 @@
 import path from 'path'
 
-import { command, arg, summary, validate } from 'paparam'
+import { command, arg, summary } from 'paparam'
 import { getRepoRoot } from '../lib/git.js'
 import { getStashDir, readMeta, makeRepoSlug } from '../lib/storage.js'
 import { inspect } from '../lib/snapshot.js'

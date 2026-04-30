@@ -1,5 +1,6 @@
 import { execSync, spawnSync } from 'node:child_process'
 import fs from 'node:fs'
+import path from 'node:path'
 
 export function getRepoRoot(cwd = process.cwd()) {
   try {
@@ -30,7 +31,7 @@ export function cleanWorkingDirectory(repoRoot, links, modified) {
   execSync('git reset --hard HEAD', { cwd: repoRoot, encoding: 'utf8' })
   execSync('git clean -fd', { cwd: repoRoot, encoding: 'utf8' })
   if (!modified.length) return
-  execSync('rm -rf ./node_modules', { cwd: repoRoot, encoding: 'utf8' })
+  fs.rmSync(path.join(repoRoot, 'node_modules'), { recursive: true, force: true })
   execSync('npm i', { cwd: repoRoot, encoding: 'utf8' })
 }
 
